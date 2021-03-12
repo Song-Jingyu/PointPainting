@@ -6,12 +6,12 @@ This runnable PointPainting is tested on Ubuntu 18, with a very recent torch and
 ## Datasets config
 I think you may need to point the dataset location in train.py to your own KITTI dataset source.
 The folder tree should be:
--Kitti Dataset (only need to make sure this name is same as the file directory in the train.py)
---trainning
----calib
----image_2
----label_2
----velodyne
+-Kitti Dataset (only need to make sure this name is same as the file directory in the train.py)  
+--trainning  
+---calib  
+---image_2  
+---label_2  
+---velodyne  
 
 # PointPainting
 An implementation of PointPainting (https://arxiv.org/abs/1911.10150), an image-lidar fusion algorithm for 3D object detection. Code is partly based on the [Pointpillars](https://github.com/nutonomy/second.pytorch) repo as well as [this](https://github.com/sgrvinod/a-PyTorch-Tutorial-to-Object-Detection) object detection repo. The algorithm involves performing a semantic segmentation of the image, projecting the pointcloud to the resulting segmentation map to give each lidar point its class score, and running the augmented pointcloud through a 2D object detector (SSD) in BEV. Some changes to the algorithm have been made including removal of orientation estimation, and changes to the feature extractor. Predictions are made for the Car class on the KITTI dataset.
