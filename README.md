@@ -11,6 +11,12 @@ We propose to support Kitti dataset first and utilize OpenPCDet as the LiDAR det
   - [Background](#background)
     - [Framework Overview](#framework-overview)
   - [Install](#install)
+    - [OpenPCDet](#openpcdet)
+    - [mmsegmentation](#mmsegmentation)
+  - [How to Use](#how-to-use)
+    - [Dataset Preparation](#dataset-preparation)
+  - [Results](#results)
+  - [Authors](#authors)
 
 ## Background
 The PointPainting means to fuse the semantic segmentation results based on RGB images and add class scores to the raw LiDAR pointcloud to achieve higher accuracy than LiDAR-only approach.
@@ -22,5 +28,17 @@ The PointPainting architecture consists of three main stages: (1) image based se
 ## Install
 To use this repo, first install these dependencies.
 - [Pytorch](https://pytorch.org/), tested on Pytorch 1.6/1.7 with CUDA toolkit
-- [OpenPCDet]
-- [mmsegmentation]
+- [OpenPCDet](#openpcdet)
+- [mmsegmentation](#mmsegmentation)
+
+### OpenPCDet
+
+### mmsegmentation
+
+## How to Use
+
+### Dataset Preparation
+
+## Results
+
+## Authors
