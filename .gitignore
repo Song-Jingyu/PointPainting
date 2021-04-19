@@ -1,0 +1,8 @@
+.vscode
+score_hma
+painted_lidar
+/detector/data/kitti/training/log/
+/painting/hma/assets
+/painting/mmseg/checkpoints
+**/.DS_Store
+*/__pycache__

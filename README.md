@@ -14,6 +14,7 @@ Update on April 20, 2021: Code released! We currently support Kitti dataset, wit
   - [Install](#install)
     - [OpenPCDet](#openpcdet)
     - [mmsegmentation](#mmsegmentation)
+    - [Hierarchical Multi-Scale Attention for Semantic Segmentation](#hierarchical-multi-scale-attention-for-semantic-segmentation)
   - [How to Use](#how-to-use)
     - [Dataset Preparation](#dataset-preparation)
     - [Painting](#painting)
@@ -49,7 +50,10 @@ For the image-based semantic segmentation, we use the [mmsegmentation](https://g
 $ pip install terminaltables
 $ pip install mmcv-full -f https://download.openmmlab.com/mmcv/dist/cu101/torch1.7.0/index.html
 ```
-You may notice there is a folder in the `./detector/mmseg`, so you do not have to manually clone its repository.
+You may notice there is a folder in the `./painting/mmseg`, so you do not have to manually clone its repository.
+
+### Hierarchical Multi-Scale Attention for Semantic Segmentation
+We also support [Hierarchical Multi-Scale Attention for Semantic Segmentation](https://arxiv.org/abs/2005.10821). While we have cloned their [github repo](https://github.com/NVIDIA/semantic-segmentation) for you under `./painting/hma` (with some modification to handle kitti dataset), please refer to the above link for the installation of its dependencies. 
 
 ## How to Use
 As this is a sequential detection framework, so the first thing is to prepare your kitti dataset and then paint your raw LiDAR. With the painted LiDAR, you could then train a neural network and see the enhanced result.
@@ -73,7 +77,7 @@ detector
 Notice we have already generated the train and val info for you. So you may only put the Kitti raw data into corresponding folder.
 ### Painting
 When you have managed your data as shown below, doing the painting should be very easy. Firstly check the `painting.py` script and choose the segmentation network index that you want to use! We suggest the DeepLab V3+ and it is by default.
-To use DeepLab V3+ you may go to download the [weight](https://download.openmmlab.com/mmsegmentation/v0.5/deeplabv3plus/deeplabv3plus_r101-d8_512x1024_80k_cityscapes/deeplabv3plus_r101-d8_512x1024_80k_cityscapes_20200606_114143-068fcfe9.pth) and save it in `./mmseg/checkpoints/`. Then you could run the following command.
+To use DeepLab V3+ you may go to download the [weight](https://download.openmmlab.com/mmsegmentation/v0.5/deeplabv3plus/deeplabv3plus_r101-d8_512x1024_80k_cityscapes/deeplabv3plus_r101-d8_512x1024_80k_cityscapes_20200606_114143-068fcfe9.pth) and save it in `./mmseg/checkpoints/`. Then you could run the following command. 
 ```
 $ cd painting
 $ python painting.py
@@ -81,7 +85,11 @@ $ python painting.py
 The painting process might take hours depending on your computing device performance. When you have done the painting, you can procees to the LiDAR Detector training!
 
 #### HMA-based Painting
-TODO
+To generate segmentation score based on HMA, please run the following commands under `./painting`. It will download the required weight and handles the whole segmentation process. Again, it might take hours to finish.
+```
+$ sh generate_hma_score.sh
+```
+The segmentation score is saved under `./detector/data/kitti/training/score_hma/`. When you finish running the script, check the `painting.py` script and set `SEG_NET = 2`. Then refer to [Painting](#painting) for the following steps.
 
 ### LiDAR Detector Training
 For the training part, you should run the following commands to start training based on the painted pointclouds.

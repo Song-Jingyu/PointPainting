@@ -41,17 +41,13 @@ from runx.logx import logx
 from config import assert_and_infer_cfg, update_epoch, cfg
 from utils.misc import AverageMeter, prep_experiment, eval_metrics
 from utils.misc import ImageDumper
-from utils.trnval_utils import eval_minibatch, validate_topn, flip_tensor, resize_tensor, fmt_scale
+from utils.trnval_utils import eval_minibatch, validate_topn
 from loss.utils import get_loss
 from loss.optimizer import get_optimizer, restore_opt, restore_net
 
 import datasets
 import network
 
-import numpy as np
-from PIL import Image
-from torchvision import transforms
-from tqdm import tqdm
 
 # Import autoresume module
 sys.path.append(os.environ.get('SUBMIT_SCRIPTS', '.'))
@@ -61,12 +57,11 @@ try:
 except ImportError:
     print(AutoResume)
 
-DATA_PATH = "../../detector/data/kitti/training/"
 
 # Argument Parser
 parser = argparse.ArgumentParser(description='Semantic Segmentation')
 parser.add_argument('--lr', type=float, default=0.002)
-parser.add_argument('--arch', type=str, default='ocrnet.HRNet_Mscale',
+parser.add_argument('--arch', type=str, default='deepv3.DeepWV3Plus',
                     help='Network architecture. We have DeepSRNX50V3PlusD (backbone: ResNeXt50) \
                     and deepWV3Plus (backbone: WideResNet38).')
 parser.add_argument('--dataset', type=str, default='cityscapes',
@@ -109,9 +104,9 @@ parser.add_argument('--rescale', type=float, default=1.0,
 parser.add_argument('--repoly', type=float, default=1.5,
                     help='Warm Restart new poly exp')
 
-parser.add_argument('--apex', action='store_true', default=True,
+parser.add_argument('--apex', action='store_true', default=False,
                     help='Use Nvidia Apex Distributed Data Parallel')
-parser.add_argument('--fp16', action='store_true', default=True,
+parser.add_argument('--fp16', action='store_true', default=False,
                     help='Use Nvidia Apex AMP')
 
 parser.add_argument('--local_rank', default=0, type=int,
@@ -159,7 +154,7 @@ parser.add_argument('--scale_max', type=float, default=2.0,
                     help='dynamically scale training images up to this size')
 parser.add_argument('--weight_decay', type=float, default=1e-4)
 parser.add_argument('--momentum', type=float, default=0.9)
-parser.add_argument('--snapshot', type=str, default="./assets/seg_weights/cityscapes_ocrnet.HRNet_Mscale_outstanding-turtle.pth")
+parser.add_argument('--snapshot', type=str, default=None)
 parser.add_argument('--resume', type=str, default=None,
                     help=('continue training from a checkpoint. weights, '
                           'optimizer, schedule are restored'))
@@ -167,9 +162,9 @@ parser.add_argument('--restore_optimizer', action='store_true', default=False)
 parser.add_argument('--restore_net', action='store_true', default=False)
 parser.add_argument('--exp', type=str, default='default',
                     help='experiment directory name')
-parser.add_argument('--result_dir', type=str, default=DATA_PATH+"log/",
+parser.add_argument('--result_dir', type=str, default='./logs',
                     help='where to write log output')
-parser.add_argument('--syncbn', action='store_true', default=True,
+parser.add_argument('--syncbn', action='store_true', default=False,
                     help='Use Synchronized BN')
 parser.add_argument('--dump_augmentation_images', action='store_true', default=False,
                     help='Dump Augmentated Images for sanity check')
@@ -196,16 +191,16 @@ parser.add_argument('--default_scale', type=float, default=1.0,
 parser.add_argument('--log_msinf_to_tb', action='store_true', default=False,
                     help='Log multi-scale Inference to Tensorboard')
 
-parser.add_argument('--eval', type=str, default='folder',
+parser.add_argument('--eval', type=str, default=None,
                     help=('just run evaluation, can be set to val or trn or '
                           'folder'))
-parser.add_argument('--eval_folder', type=str, default=DATA_PATH,
+parser.add_argument('--eval_folder', type=str, default=None,
                     help='path to frames to evaluate')
 parser.add_argument('--three_scale', action='store_true', default=False)
 parser.add_argument('--alt_two_scale', action='store_true', default=False)
 parser.add_argument('--do_flip', action='store_true', default=False)
 parser.add_argument('--extra_scales', type=str, default='0.5,2.0')
-parser.add_argument('--n_scales', type=str, default="0.5,1.0,2.0")
+parser.add_argument('--n_scales', type=str, default=None)
 parser.add_argument('--align_corners', action='store_true',
                     default=False)
 parser.add_argument('--translate_aug_fix', action='store_true', default=False)
@@ -304,6 +299,28 @@ if args.apex:
     torch.distributed.init_process_group(backend='nccl',
                                          init_method='env://')
 
+
+def check_termination(epoch):
+    if AutoResume:
+        shouldterminate = AutoResume.termination_requested()
+        if shouldterminate:
+            if args.global_rank == 0:
+                progress = "Progress %d%% (epoch %d of %d)" % (
+                    (epoch * 100 / args.max_epoch),
+                    epoch,
+                    args.max_epoch
+                )
+                AutoResume.request_resume(
+                    user_dict={"RESUME_FILE": logx.save_ckpt_fn,
+                               "TENSORBOARD_DIR": args.result_dir,
+                               "EPOCH": str(epoch)
+                               }, message=progress)
+                return 1
+            else:
+                return 1
+    return 0
+
+
 def main():
     """
     Main Function
@@ -313,13 +330,14 @@ def main():
 
     assert args.result_dir is not None, 'need to define result_dir arg'
     logx.initialize(logdir=args.result_dir,
-                    tensorboard=False, hparams=vars(args),
+                    tensorboard=True, hparams=vars(args),
                     global_rank=args.global_rank)
 
     # Set up the Arguments, Tensorboard Writer, Dataloader, Loss Fn, Optimizer
     assert_and_infer_cfg(args)
     prep_experiment(args)
-    train_loader, val_loader, train_obj = datasets.setup_loaders(args)
+    train_loader, val_loader, train_obj = \
+        datasets.setup_loaders(args)
     criterion, criterion_val = get_loss(args)
 
     auto_resume_details = None
@@ -364,6 +382,15 @@ def main():
 
     net = network.wrap_network_in_dataparallel(net, args.apex)
 
+    if args.summary:
+        print(str(net))
+        from pytorchOpCounter.thop import profile
+        img = torch.randn(1, 3, 1024, 2048).cuda()
+        mask = torch.randn(1, 1, 1024, 2048).cuda()
+        macs, params = profile(net, inputs={'images': img, 'gts': mask})
+        print(f'macs {macs} params {params}')
+        sys.exit()
+
     if args.restore_optimizer:
         restore_opt(optim, checkpoint)
     if args.restore_net:
@@ -377,155 +404,198 @@ def main():
     if args.start_epoch != 0:
         scheduler.step(args.start_epoch)
 
-    if args.eval == 'folder':
-        # Using a folder for evaluation means to not calculate metrics
-        # validate(val_loader, net, criterion=None, optim=None, epoch=0,
-        #          calc_metrics=False, dump_assets=args.dump_assets,
-        #          dump_all_images=True)
-        if not os.path.exists(args.result_dir+'image_2/'):
-            os.mkdir(args.result_dir+'image_2/')
-        if not os.path.exists(args.result_dir+'image_3/'):
-            os.mkdir(args.result_dir+'image_3/')
+    # There are 4 options for evaluation:
+    #  --eval val                           just run validation
+    #  --eval val --dump_assets             dump all images and assets
+    #  --eval folder                        just dump all basic images
+    #  --eval folder --dump_assets          dump all images and assets
+    if args.eval == 'val':
 
-        num_image = 7481
-        for idx in tqdm(range(num_image)):
-            sample_idx = "%06d" % idx
-            eval_minibatch(sample_idx, "image_2/", net, args)
-            eval_minibatch(sample_idx, "image_3/", net, args)
-        
+        if args.dump_topn:
+            validate_topn(val_loader, net, criterion_val, optim, 0, args)
+        else:
+            validate(val_loader, net, criterion=criterion_val, optim=optim, epoch=0,
+                     dump_assets=args.dump_assets,
+                     dump_all_images=args.dump_all_images,
+                     calc_metrics=not args.no_metrics)
+        return 0
+    elif args.eval == 'folder':
+        # Using a folder for evaluation means to not calculate metrics
+        validate(val_loader, net, criterion=None, optim=None, epoch=0,
+                 calc_metrics=False, dump_assets=args.dump_assets,
+                 dump_all_images=True)
         return 0
     elif args.eval is not None:
         raise 'unknown eval option {}'.format(args.eval)
 
-def eval_minibatch(idx, left, net, args):
-    """
-    Evaluate a single minibatch of images.
-     * calculate metrics
-     * dump images
+    for epoch in range(args.start_epoch, args.max_epoch):
+        update_epoch(epoch)
 
-    There are two primary multi-scale inference types:
-      1. 'MSCALE', or in-model multi-scale: where the multi-scale iteration loop is
-         handled within the model itself (see networks/mscale.py -> nscale_forward())
-      2. 'multi_scale_inference', where we use Averaging to combine scales
-    """
-    filename = args.eval_folder + left + ('%s.png' % idx)
-    input_image = Image.open(filename)
-    preprocess = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-    ])
+        if args.only_coarse:
+            train_obj.only_coarse()
+            train_obj.build_epoch()
+            if args.apex:
+                train_loader.sampler.set_num_samples()
 
-    input_tensor = preprocess(input_image)
-    images = input_tensor.unsqueeze(0) # create a mini-batch as expected by the model
+        elif args.class_uniform_pct:
+            if epoch >= args.max_cu_epoch:
+                train_obj.disable_coarse()
+                train_obj.build_epoch()
+                if args.apex:
+                    train_loader.sampler.set_num_samples()
+            else:
+                train_obj.build_epoch()
+        else:
+            pass
+
+        train(train_loader, net, optim, epoch)
+
+        if args.apex:
+            train_loader.sampler.set_epoch(epoch + 1)
+
+        if epoch % args.val_freq == 0:
+            validate(val_loader, net, criterion_val, optim, epoch)
+
+        scheduler.step()
+
+        if check_termination(epoch):
+            return 0
+
+
+def train(train_loader, net, optim, curr_epoch):
+    """
+    Runs the training loop per epoch
+    train_loader: Data loader for train
+    net: thet network
+    optimizer: optimizer
+    curr_epoch: current epoch
+    return:
+    """
+    net.train()
+
+    train_main_loss = AverageMeter()
+    start_time = None
+    warmup_iter = 10
+
+    for i, data in enumerate(train_loader):
+        if i <= warmup_iter:
+            start_time = time.time()
+        # inputs = (bs,3,713,713)
+        # gts    = (bs,713,713)
+        images, gts, _img_name, scale_float = data
+        batch_pixel_size = images.size(0) * images.size(2) * images.size(3)
+        images, gts, scale_float = images.cuda(), gts.cuda(), scale_float.cuda()
+        inputs = {'images': images, 'gts': gts}
+
+        optim.zero_grad()
+        main_loss = net(inputs)
+
+        if args.apex:
+            log_main_loss = main_loss.clone().detach_()
+            torch.distributed.all_reduce(log_main_loss,
+                                         torch.distributed.ReduceOp.SUM)
+            log_main_loss = log_main_loss / args.world_size
+        else:
+            main_loss = main_loss.mean()
+            log_main_loss = main_loss.clone().detach_()
+
+        train_main_loss.update(log_main_loss.item(), batch_pixel_size)
+        if args.fp16:
+            with amp.scale_loss(main_loss, optim) as scaled_loss:
+                scaled_loss.backward()
+        else:
+            main_loss.backward()
+
+        optim.step()
+
+        if i >= warmup_iter:
+            curr_time = time.time()
+            batches = i - warmup_iter + 1
+            batchtime = (curr_time - start_time) / batches
+        else:
+            batchtime = 0
+
+        msg = ('[epoch {}], [iter {} / {}], [train main loss {:0.6f}],'
+               ' [lr {:0.6f}] [batchtime {:0.3g}]')
+        msg = msg.format(
+            curr_epoch, i + 1, len(train_loader), train_main_loss.avg,
+            optim.param_groups[-1]['lr'], batchtime)
+        logx.msg(msg)
+
+        metrics = {'loss': train_main_loss.avg,
+                   'lr': optim.param_groups[-1]['lr']}
+        curr_iter = curr_epoch * len(train_loader) + i
+        logx.metric('train', metrics, curr_iter)
+
+        if i >= 10 and args.test_mode:
+            del data, inputs, gts
+            return
+        del data
+
+
+def validate(val_loader, net, criterion, optim, epoch,
+             calc_metrics=True,
+             dump_assets=False,
+             dump_all_images=False):
+    """
+    Run validation for one epoch
+
+    :val_loader: data loader for validation
+    :net: the network
+    :criterion: loss fn
+    :optimizer: optimizer
+    :epoch: current epoch
+    :calc_metrics: calculate validation score
+    :dump_assets: dump attention prediction(s) images
+    :dump_all_images: dump all images, not just N
+    """
+    dumper = ImageDumper(val_len=len(val_loader),
+                         dump_all_images=dump_all_images,
+                         dump_assets=dump_assets,
+                         dump_for_auto_labelling=args.dump_for_auto_labelling,
+                         dump_for_submission=args.dump_for_submission)
 
     net.eval()
-    torch.cuda.empty_cache()
+    val_loss = AverageMeter()
+    iou_acc = 0
 
-    scales = [args.default_scale]
-    if args.multi_scale_inference:
-        scales.extend([float(x) for x in args.extra_scales.split(',')])
+    for val_idx, data in enumerate(val_loader):
+        input_images, labels, img_names, _ = data 
+        if args.dump_for_auto_labelling or args.dump_for_submission:
+            submit_fn = '{}.png'.format(img_names[0])
+            if val_idx % 20 == 0:
+                logx.msg(f'validating[Iter: {val_idx + 1} / {len(val_loader)}]')
+            if os.path.exists(os.path.join(dumper.save_dir, submit_fn)):
+                continue
 
-    # input    = torch.Size([1, 3, h, w])
-    # gt_image = torch.Size([1, h, w])
-    # images, gt_image, img_names, scale_float = data
-    # images = data
-    # assert len(images.size()) == 4 and len(gt_image.size()) == 3
-    # assert images.size()[2:] == gt_image.size()[1:]
-    input_size = images.size(2), images.size(3)
+        # Run network
+        assets, _iou_acc = \
+            eval_minibatch(data, net, criterion, val_loss, calc_metrics,
+                          args, val_idx)
 
-    if args.do_flip:
-        # By ending with flip=0, we insure that the images that are dumped
-        # out correspond to the unflipped versions. A bit hacky.
-        flips = [1, 0]
-    else:
-        flips = [0]
+        iou_acc += _iou_acc
 
-    with torch.no_grad():
-        output = 0.0
+        input_images, labels, img_names, _ = data
 
-        for flip in flips:
-            for scale in scales:
-                if flip == 1:
-                    inputs = flip_tensor(images, 3)
-                else:
-                    inputs = images
+        dumper.dump({'gt_images': labels,
+                     'input_images': input_images,
+                     'img_names': img_names,
+                     'assets': assets}, val_idx)
 
-                infer_size = [round(sz * scale) for sz in input_size]
+        if val_idx > 5 and args.test_mode:
+            break
 
-                if scale != 1.0:
-                    inputs = resize_tensor(inputs, infer_size)
+        if val_idx % 20 == 0:
+            logx.msg(f'validating[Iter: {val_idx + 1} / {len(val_loader)}]')
 
-                inputs = {'images': inputs}
-                inputs = {k: v.cuda() for k, v in inputs.items()}
+    was_best = False
+    if calc_metrics:
+        was_best = eval_metrics(iou_acc, args, net, optim, val_loss, epoch)
 
-                # Expected Model outputs:
-                #   required:
-                #     'pred'  the network prediction, shape (1, 19, h, w)
-                #
-                #   optional:
-                #     'pred_*' - multi-scale predictions from mscale model
-                #     'attn_*' - multi-scale attentions from mscale model
-                output_dict = net(inputs)
+    # Write out a summary html page and tensorboard image table
+    if not args.dump_for_auto_labelling and not args.dump_for_submission:
+        dumper.write_summaries(was_best)
 
-                _pred = output_dict['pred']
-
-                # save AVGPOOL style multi-scale output for visualizing
-                if not cfg.MODEL.MSCALE:
-                    scale_name = fmt_scale('pred', scale)
-                    output_dict[scale_name] = _pred
-
-                # resize tensor down to 1.0x scale in order to combine
-                # with other scales of prediction
-                if scale != 1.0:
-                    _pred = resize_tensor(_pred, input_size)
-
-                if flip == 1:
-                    output = output + flip_tensor(_pred, 3)
-                else:
-                    output = output + _pred
-
-    output = output / len(scales) / len(flips)
-    # assert_msg = 'output_size {} gt_cuda size {}'
-    # gt_cuda = gt_image.cuda()
-    # assert_msg = assert_msg.format(
-    #     output.size()[2:], gt_cuda.size()[1:])
-    # assert output.size()[2:] == gt_cuda.size()[1:], assert_msg
-    assert output.size()[1] == cfg.DATASET.NUM_CLASSES#, assert_msg
-
-    output_data = torch.nn.functional.softmax(output, dim=1).cpu().data
-    # max_probs, predictions = output_data.max(1)
-
-    # # Assemble assets to visualize
-    # assets = {}
-    # for item in output_dict:
-    #     if 'attn_' in item:
-    #         assets[item] = output_dict[item]
-    #     if 'pred_' in item:
-    #         smax = torch.nn.functional.softmax(output_dict[item], dim=1)
-    #         _, pred = smax.data.max(1)
-    #         assets[item] = pred.cpu().numpy()
-
-    # predictions = predictions.numpy()
-    # assets['predictions'] = predictions
-    # assets['prob_mask'] = max_probs
-    # assets['scores'] = output_data
-
-    output_permute = torch.tensor(output_data[0]).permute(1,2,0) # H, W, 19
-
-
-    output_reassign = torch.zeros(output_permute.size(0),output_permute.size(1), 5)
-    output_reassign[:,:,0], _ = torch.max(output_permute[:,:,:11], dim=2) # background
-    output_reassign[:,:,1], _ = torch.max(output_permute[:,:,[17, 18]], dim=2) # bicycle
-    output_reassign[:,:,2], _ = torch.max(output_permute[:,:,[13, 14, 15, 16]], dim=2) # car
-    output_reassign[:,:,3] = output_permute[:,:,11] #person
-    output_reassign[:,:,4] = output_permute[:,:,12] #rider
-    sf = torch.nn.Softmax(dim=2)
-    output_reassign_softmax = sf(output_reassign).cpu().numpy()
-
-    np.save(args.result_dir + left + ("%s.npy" % idx), output_reassign_softmax)
-
-    return output_reassign_softmax
-    # return assets
 
 if __name__ == '__main__':
     main()

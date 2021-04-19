@@ -3,6 +3,7 @@ from torchvision import transforms
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
+import os
 from PIL import Image
 from tqdm import tqdm
 
@@ -12,10 +13,10 @@ import mmcv
 import pcdet_utils.calibration_kitti as calibration_kitti
 
 
-TRAINING_PATH = "../detector/kitti/training/"
+TRAINING_PATH = "../detector/data/kitti/training/"
 TWO_CAMERAS = True
-SEG_NET_OPTIONS = ["deeplabv3", "deeplabv3plus cityscapes", "hma"]
-# TODO choose the segmentation network you want to use
+SEG_NET_OPTIONS = ["deeplabv3", "deeplabv3plus", "hma"]
+# TODO choose the segmentation network you want to use, deeplabv3 = 0 deeplabv3plus = 1 hma = 2
 SEG_NET = 1 #TODO choose your preferred network
 
 
@@ -23,6 +24,9 @@ class Painter:
     def __init__(self, seg_net_index):
         self.root_split_path = TRAINING_PATH
         self.save_path = TRAINING_PATH + "painted_lidar/"
+        if not os.path.exists(self.save_path):
+            os.mkdir(self.save_path)
+
         self.seg_net_index = seg_net_index
         self.model = None
         if seg_net_index == 0:
@@ -74,7 +78,7 @@ class Painter:
             detect_object_mask = ~other_object_mask
             sf = torch.nn.Softmax(dim=2)
 
-            # bicycle = 2  car = 7 person = 15 background = 0
+            # bicycle = 2 car = 7 person = 15 background = 0
             output_reassign = torch.zeros(output_permute.size(0),output_permute.size(1),4)
             output_reassign[:,:,0] = detect_object_mask * output_permute[:,:,0] + other_object_mask * output_probability # background
             output_reassign[:,:,1] = output_permute[:,:,2] # bicycle
