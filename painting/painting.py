@@ -16,7 +16,7 @@ TRAINING_PATH = "./training/"
 TWO_CAMERAS = True
 SEG_NET_OPTIONS = ["deeplabv3", "deeplabv3plus cityscapes", "hma"]
 # TODO choose the segmentation network you want to use
-SEG_NET = 3
+SEG_NET = 1 #TODO choose your preferred network
 
 
 class Painter:
@@ -26,13 +26,15 @@ class Painter:
         self.seg_net_index = seg_net_index
         self.model = None
         if seg_net_index == 0:
+            print(f'Using Segmentation Network -- {SEG_NET_OPTIONS[seg_net_index]}')
             self.model = torch.hub.load('pytorch/vision:v0.6.0', 'deeplabv3_resnet101', pretrained=True)
             self.model.eval()
             if torch.cuda.is_available():
                 self.model.to('cuda')
         elif seg_net_index == 1:
-            config_file = './mmsegmentation/configs/deeplabv3plus/deeplabv3plus_r101-d8_512x1024_80k_cityscapes.py'
-            checkpoint_file = './mmsegmentation/checkpoints/deeplabv3plus_r101-d8_512x1024_80k_cityscapes_20200606_114143-068fcfe9.pth'
+            print(f'Using Segmentation Network -- {SEG_NET_OPTIONS[seg_net_index]}')
+            config_file = './mmseg/configs/deeplabv3plus/deeplabv3plus_r101-d8_512x1024_80k_cityscapes.py'
+            checkpoint_file = './mmseg/checkpoints/deeplabv3plus_r101-d8_512x1024_80k_cityscapes_20200606_114143-068fcfe9.pth'
             self.model = init_segmentor(config_file, checkpoint_file, device='cuda:0') # TODO edit here if you want to use different device
 
         
