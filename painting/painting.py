@@ -12,7 +12,7 @@ import mmcv
 import pcdet_utils.calibration_kitti as calibration_kitti
 
 
-TRAINING_PATH = "./training/"
+TRAINING_PATH = "../detector/kitti/training/"
 TWO_CAMERAS = True
 SEG_NET_OPTIONS = ["deeplabv3", "deeplabv3plus cityscapes", "hma"]
 # TODO choose the segmentation network you want to use
