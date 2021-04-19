@@ -17,6 +17,7 @@ Update on April 20, 2021: Code released! We currently support Kitti dataset, wit
   - [How to Use](#how-to-use)
     - [Dataset Preparation](#dataset-preparation)
     - [Painting](#painting)
+      - [HMA-based Painting](#hma-based-painting)
     - [LiDAR Detector Training](#lidar-detector-training)
   - [Results](#results)
   - [Authors](#authors)
@@ -78,6 +79,10 @@ $ cd painting
 $ python painting.py
 ```
 The painting process might take hours depending on your computing device performance. When you have done the painting, you can procees to the LiDAR Detector training!
+
+#### HMA-based Painting
+TODO
+
 ### LiDAR Detector Training
 For the training part, you should run the following commands to start training based on the painted pointclouds.
 ```
