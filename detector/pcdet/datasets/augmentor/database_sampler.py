@@ -135,6 +135,22 @@ class DataBaseSampler(object):
 
             obj_points[:, :3] += info['box3d_lidar'][:3]
 
+            # TODO Modified by Pointpainting
+            if points.shape[1] >= 8:
+                score = np.zeros((obj_points.shape[0],4))
+                if 'Pedestrian' in info['path']:
+                    score[:, 3] = 1.0
+                    obj_points = np.concatenate((obj_points, score), axis=1)
+                elif 'Cyclist' in info['path']:
+                    score[:, 1] = 1.0
+                    obj_points = np.concatenate((obj_points, score), axis=1)
+                elif 'Car' in info['path']:
+                    score[:, 2] = 1.0
+                    obj_points = np.concatenate((obj_points, score), axis=1)
+                else:
+                    score[:, 0] = 1.0
+                    obj_points = np.concatenate((obj_points, score), axis=1)
+
             if self.sampler_cfg.get('USE_ROAD_PLANE', False):
                 # mv height
                 obj_points[:, 2] -= mv_height[idx]
