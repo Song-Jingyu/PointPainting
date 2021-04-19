@@ -22,7 +22,7 @@ SEG_NET = 3
 class Painter:
     def __init__(self, seg_net_index):
         self.root_split_path = TRAINING_PATH
-        self.save_path = TRAINING_PATH + "painted_lidar_stereo_bike/"
+        self.save_path = TRAINING_PATH + "painted_lidar/"
         self.seg_net_index = seg_net_index
         self.model = None
         if seg_net_index == 0:
