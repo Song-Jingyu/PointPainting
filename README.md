@@ -79,7 +79,13 @@ $ python painting.py
 ```
 The painting process might take hours depending on your computing device performance. When you have done the painting, you can procees to the LiDAR Detector training!
 ### LiDAR Detector Training
-For the training part, you shoudl run the following 
+For the training part, you should run the following commands to start training based on the painted pointclouds.
+```
+$ cd detector
+$ python -m pcdet.datasets.kitti.painted_kitti_dataset create_kitti_infos tools/cfgs/dataset_configs/painted_kitti_dataset.yaml
+$ cd tools
+$ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
+```
 
 ## Results
 
