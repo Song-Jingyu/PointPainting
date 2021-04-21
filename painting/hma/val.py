@@ -62,8 +62,6 @@ except ImportError:
     print(AutoResume)
 
 DATA_PATH = "../../detector/data/kitti/training/"
-os.environ['KMP_DUPLICATE_LIB_OK']='True'
-
 
 # Argument Parser
 parser = argparse.ArgumentParser(description='Semantic Segmentation')
