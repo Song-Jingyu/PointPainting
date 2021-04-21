@@ -8,7 +8,7 @@ import torch.nn.functional as F
 
 from config import cfg
 from network.mynn import Norm2d
-from apex.parallel import SyncBatchNorm
+# from apex.parallel import SyncBatchNorm
 from runx.logx import logx
 
 

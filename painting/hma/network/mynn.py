@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from config import cfg
 
-from apex import amp
+# from apex import amp
 
 from runx.logx import logx
 

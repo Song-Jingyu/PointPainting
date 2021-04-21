@@ -36,12 +36,12 @@ import sys
 import time
 import torch
 
-from apex import amp
+# from apex import amp
 from runx.logx import logx
 from config import assert_and_infer_cfg, update_epoch, cfg
 from utils.misc import AverageMeter, prep_experiment, eval_metrics
 from utils.misc import ImageDumper
-from utils.trnval_utils import eval_minibatch, validate_topn, flip_tensor, resize_tensor, fmt_scale
+from utils.trnval_utils import validate_topn, flip_tensor, resize_tensor, fmt_scale
 from loss.utils import get_loss
 from loss.optimizer import get_optimizer, restore_opt, restore_net
 
@@ -62,6 +62,8 @@ except ImportError:
     print(AutoResume)
 
 DATA_PATH = "../../detector/data/kitti/training/"
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
+
 
 # Argument Parser
 parser = argparse.ArgumentParser(description='Semantic Segmentation')
@@ -109,9 +111,9 @@ parser.add_argument('--rescale', type=float, default=1.0,
 parser.add_argument('--repoly', type=float, default=1.5,
                     help='Warm Restart new poly exp')
 
-parser.add_argument('--apex', action='store_true', default=True,
+parser.add_argument('--apex', action='store_true', default=False,
                     help='Use Nvidia Apex Distributed Data Parallel')
-parser.add_argument('--fp16', action='store_true', default=True,
+parser.add_argument('--fp16', action='store_true', default=False,
                     help='Use Nvidia Apex AMP')
 
 parser.add_argument('--local_rank', default=0, type=int,
@@ -169,7 +171,7 @@ parser.add_argument('--exp', type=str, default='default',
                     help='experiment directory name')
 parser.add_argument('--result_dir', type=str, default=DATA_PATH+"log/",
                     help='where to write log output')
-parser.add_argument('--syncbn', action='store_true', default=True,
+parser.add_argument('--syncbn', action='store_true', default=False,
                     help='Use Synchronized BN')
 parser.add_argument('--dump_augmentation_images', action='store_true', default=False,
                     help='Dump Augmentated Images for sanity check')
@@ -286,24 +288,6 @@ if args.deterministic:
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-args.world_size = 1
-
-# Test Mode run two epochs with a few iterations of training and val
-if args.test_mode:
-    args.max_epoch = 2
-
-if 'WORLD_SIZE' in os.environ and args.apex:
-    # args.apex = int(os.environ['WORLD_SIZE']) > 1
-    args.world_size = int(os.environ['WORLD_SIZE'])
-    args.global_rank = int(os.environ['RANK'])
-
-if args.apex:
-    print('Global Rank: {} Local Rank: {}'.format(
-        args.global_rank, args.local_rank))
-    torch.cuda.set_device(args.local_rank)
-    torch.distributed.init_process_group(backend='nccl',
-                                         init_method='env://')
-
 def main():
     """
     Main Function
@@ -358,9 +342,6 @@ def main():
 
     net = network.get_net(args, criterion)
     optim, scheduler = get_optimizer(args, net)
-
-    if args.fp16:
-        net, optim = amp.initialize(net, optim, opt_level=args.amp_opt_level)
 
     net = network.wrap_network_in_dataparallel(net, args.apex)
 
@@ -456,7 +437,8 @@ def eval_minibatch(idx, left, net, args):
                     inputs = resize_tensor(inputs, infer_size)
 
                 inputs = {'images': inputs}
-                inputs = {k: v.cuda() for k, v in inputs.items()}
+                if torch.cuda.is_available():
+                    inputs = {k: v.cuda() for k, v in inputs.items()}
 
                 # Expected Model outputs:
                 #   required:

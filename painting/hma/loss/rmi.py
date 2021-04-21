@@ -16,7 +16,7 @@ import torch.nn.functional as F
 
 from loss import rmi_utils
 from config import cfg
-from apex import amp
+# from apex import amp
 
 _euler_num = 2.718281828        # euler number
 _pi = 3.14159265		# pi
