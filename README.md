@@ -39,10 +39,7 @@ $ conda install pytorch==1.7.0 torchvision==0.8.0 torchaudio=0.7.0 cudatoolkit=1
 ```
 - [OpenPCDet](#openpcdet)
 - [mmsegmentation](#mmsegmentation)
-- [mmcv-full](https://download.openmmlab.com/mmcv/dist/index.html). Install the mmcv-full that matches your torch and CUDA version.
-```
-$ pip install mmcv-full==latest+torch1.7.0+cu101 -f https://download.openmmlab.com/mmcv/dist/index.html
-```
+
 
 ### OpenPCDet
 OpenPCDet is an open-source LiDAR detection framework. It supports many popular datasets like Kitti, Nuscenes etc. We utilize the OpenPCDet as the LiDAR detector. To install the OpenPCDet please first install its [requirements](https://github.com/open-mmlab/OpenPCDet/blob/master/docs/INSTALL.md). And as we modify some parts of the OpenPCDet (including dataset loader and training configuration) to support the painted Kitti dataset, you can directly use the modified version in `./detector`. To install it, run the following commands.
