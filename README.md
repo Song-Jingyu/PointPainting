@@ -50,7 +50,7 @@ $ python setup.py develop
 ```
 
 ### mmsegmentation
-For the image-based semantic segmentation, we use the [mmsegmentation](https://github.com/open-mmlab/mmsegmentation) (OpenLab V3+). To install this package, run the following commands You may need to change link when installing [mmcv-full](https://download.openmmlab.com/mmcv/dist/index.html) to match with your torch and CUDA version.
+For the image-based semantic segmentation, we use the [mmsegmentation](https://github.com/open-mmlab/mmsegmentation) (OpenLab V3+). To install this package, run the following commands You may need to change the address when installing [mmcv-full](https://download.openmmlab.com/mmcv/dist/index.html) to match with your torch and CUDA version.
 
 ```
 $ pip install terminaltables
