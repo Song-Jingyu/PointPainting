@@ -7,4 +7,3 @@ pyyaml
 scikit-image
 tqdm
 opencv-python
-terminaltables
