@@ -91,11 +91,11 @@ $ python painting.py
 The painting process might take hours depending on your computing device performance. When you have done the painting, you can procees to the LiDAR Detector training!
 
 #### HMA-based Painting
-To generate segmentation score based on HMA, please run the following commands under `./painting`. It will download the required weight and handles the whole segmentation process. Again, it might take hours to finish.
+Instead of using DeepLab V3+, you can also generate segmentation score based on HMA. If you want to use HMA, please run the following commands under `./painting`. It will download the required weight and handles the whole segmentation process. Again, it might take hours to finish.
 ```
 $ sh generate_hma_score.sh
 ```
-The segmentation score is saved under `./detector/data/kitti/training/score_hma/`. When you finish running the script, check the `painting.py` script and set `SEG_NET = 2`. Then refer to [Painting](#painting) for the following steps.
+The segmentation score will be saved under `./detector/data/kitti/training/score_hma/`. When you finish running the script, check the `painting.py` script and set `SEG_NET = 2`. Then refer to [Painting](#painting) for the following steps.
 
 ### LiDAR Detector Training
 For the training part, you should run the following commands to start training based on the painted pointclouds.
