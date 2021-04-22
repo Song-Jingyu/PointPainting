@@ -7,3 +7,4 @@ pyyaml
 scikit-image
 tqdm
 opencv-python
+open3d
