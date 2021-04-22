@@ -39,7 +39,7 @@ $ conda install pytorch==1.7.0 torchvision==0.8.0 torchaudio=0.7.0 cudatoolkit=1
 ```
 - [OpenPCDet](#openpcdet)
 - [mmsegmentation](#mmsegmentation)
-- [mmcv-full](https://download.openmmlab.com/mmcv/dist/index.html) Install the mmcv-full that matches your torch and CUDA version.
+- [mmcv-full](https://download.openmmlab.com/mmcv/dist/index.html). Install the mmcv-full that matches your torch and CUDA version.
 ```
 $ pip install mmcv-full==latest+torch1.7.0+cu101 -f https://download.openmmlab.com/mmcv/dist/index.html
 ```
