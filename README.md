@@ -64,7 +64,7 @@ We also support [Hierarchical Multi-Scale Attention for Semantic Segmentation](h
 ## How to Use
 As this is a sequential detection framework, so the first thing is to prepare your kitti dataset and then paint your raw LiDAR. With the painted LiDAR, you could then train a neural network and see the enhanced result.
 ### Dataset Preparation
-Currently we only support the Kitti dataset, and we expect to update support for Nuscenes dataset in the future. For the Kitti dataset, you may need to manage your dataset as shown below. Kitti Dataset can be found in [here](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d).
+Currently we only support the Kitti dataset, and we expect to update support for Nuscenes dataset in the future. For the Kitti dataset, you may need to manage your dataset as shown below. Kitti dataset can be found in [here](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d).
 ```
 detector
 ├── data
