@@ -83,7 +83,7 @@ detector
 Notice we have already generated the train and val info for you. So you may only put the Kitti raw data into corresponding folder.
 ### Painting
 When you have managed your data as shown below, doing the painting should be very easy. Firstly check the `painting.py` script and choose the segmentation network index that you want to use! We suggest the DeepLab V3+ and it is by default.
-To use DeepLab V3+ you may go to download the [weight](https://download.openmmlab.com/mmsegmentation/v0.5/deeplabv3plus/deeplabv3plus_r101-d8_512x1024_80k_cityscapes/deeplabv3plus_r101-d8_512x1024_80k_cityscapes_20200606_114143-068fcfe9.pth) and save it in `./mmseg/checkpoints/`. Then you could run the following command. 
+To use DeepLab V3+ you need to download the weight of the model, you can run the script "get_deeplabv3plus_model.sh" under `./painting`. Then you could run the following command. 
 ```
 $ cd painting
 $ python painting.py
