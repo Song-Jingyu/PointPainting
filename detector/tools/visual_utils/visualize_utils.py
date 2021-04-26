@@ -69,7 +69,7 @@ def boxes_to_corners_3d(boxes3d):
     return corners3d.numpy() if is_numpy else corners3d
 
 
-def visualize_pts(pts, fig=None, bgcolor=(0, 0, 0), fgcolor=(1.0, 1.0, 1.0),
+def visualize_pts(pts, fig=None, bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0),
                   show_intensity=False, size=(600, 600), draw_origin=True):
     if not isinstance(pts, np.ndarray):
         pts = pts.cpu().numpy()
@@ -77,8 +77,18 @@ def visualize_pts(pts, fig=None, bgcolor=(0, 0, 0), fgcolor=(1.0, 1.0, 1.0),
         fig = mlab.figure(figure=None, bgcolor=bgcolor, fgcolor=fgcolor, engine=None, size=size)
 
     if show_intensity:
-        G = mlab.points3d(pts[:, 0], pts[:, 1], pts[:, 2], pts[:, 3], mode='point',
-                          colormap='gnuplot', scale_factor=1, figure=fig)
+        # G = mlab.points3d(pts[:, 0], pts[:, 1], pts[:, 2], pts[:, 3:], mode='sphere',
+                        #   colormap='gnuplot', scale_factor=1, figure=fig)
+        rgba = np.zeros((pts.shape[0], 4), dtype=np.uint8)
+        rgba[:, -1] = 255 # no transparency
+        rgba[:, :3] = pts[:, 5:8] * 255
+        print(rgba)
+        pts = mlab.pipeline.scalar_scatter(pts[:, 0], pts[:, 1], pts[:, 2]) # plot the points
+        pts.add_attribute(rgba, 'colors') # assign the colors to each point
+        pts.data.point_data.set_active_scalars('colors')
+        g = mlab.pipeline.glyph(pts)
+        g.glyph.glyph.scale_factor = 0.07 # set scaling for all the points
+        g.glyph.scale_mode = 'data_scaling_off' # make all the points same size
     else:
         G = mlab.points3d(pts[:, 0], pts[:, 1], pts[:, 2], mode='point',
                           colormap='gnuplot', scale_factor=1, figure=fig)
@@ -151,8 +161,8 @@ def draw_scenes(points, gt_boxes=None, ref_boxes=None, ref_scores=None, ref_labe
     if ref_labels is not None and not isinstance(ref_labels, np.ndarray):
         ref_labels = ref_labels.cpu().numpy()
 
-    fig = visualize_pts(points)
-    fig = draw_multi_grid_range(fig, bv_range=(0, -40, 80, 40))
+    fig = visualize_pts(points, show_intensity=True)
+    # fig = draw_multi_grid_range(fig, bv_range=(0, -40, 80, 40))
     if gt_boxes is not None:
         corners3d = boxes_to_corners_3d(gt_boxes)
         fig = draw_corners3d(corners3d, fig=fig, color=(0, 0, 1), max_num=100)
@@ -166,7 +176,7 @@ def draw_scenes(points, gt_boxes=None, ref_boxes=None, ref_scores=None, ref_labe
                 cur_color = tuple(box_colormap[k % len(box_colormap)])
                 mask = (ref_labels == k)
                 fig = draw_corners3d(ref_corners3d[mask], fig=fig, color=cur_color, cls=ref_scores[mask], max_num=100)
-    mlab.view(azimuth=-179, elevation=54.0, distance=104.0, roll=90.0)
+    mlab.view(azimuth=-179, elevation=83.0, distance=45.0, roll=90.0)
     return fig
 
 

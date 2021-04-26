@@ -2,8 +2,9 @@
 This repository aims to build an open-source PointPainting package which is easy to understand, deploy and run! We refer to the idea in the [original paper](https://arxiv.org/abs/1911.10150) to implement this open-source framework to conduct the sequential 3D object detection. We utilize the Pytorch and mmsegmentation as the image-based segmnentation approach, and the OpenPCDet as the LiDAR detector.
 
 ## Update
-We propose to support Kitti dataset first and utilize OpenPCDet as the LiDAR detection framework. We are expected to release the code to support Kitti and at least two semantic segmentation methods to do painting by the end of April 2021.
-Update on April 20, 2021: Code released! We currently support Kitti dataset, with DeepLab V3/V3+ and HMA!
+We propose to support Kitti dataset first and utilize OpenPCDet as the LiDAR detection framework. We are expected to release the code to support Kitti and at least two semantic segmentation methods to do painting by the end of April 2021.  
+Update on April 20, 2021: Code released! We currently support Kitti dataset, with DeepLab V3/V3+ and HMA!  
+Update on April 25, 2021: You can watch the presentation video at this [link](https://www.youtube.com/watch?v=qtNG_lZuafs&t=11s)
 
 ## Table of Contents
 - [PointPainting](#pointpainting)
@@ -20,7 +21,11 @@ Update on April 20, 2021: Code released! We currently support Kitti dataset, wit
     - [Painting](#painting)
       - [HMA-based Painting](#hma-based-painting)
     - [LiDAR Detector Training](#lidar-detector-training)
-  - [Results](#results)
+    - [Running Inference](#running-inference)
+  - [Results & Discussions](#results--discussions)
+    - [Semantic Segmentation](#semantic-segmentation)
+    - [Painting](#painting-1)
+    - [3D Object Detection](#3d-object-detection)
   - [Authors](#authors)
 
 ## Background
@@ -76,6 +81,7 @@ detector
 │   │   │   ├── image_3
 │   │   │   ├── label_2
 │   │   │   ├── velodyne
+│   │   │   ├── planee (you have to download [road plane](https://drive.google.com/file/d/1d5mq0RXRnvHPVeKx6Q612z0YRO1t2wAp/view?usp=sharing) provided by the OpenPCDet)
 │   │   │   ├── painted_lidar (keep it empty)
 │   │   │── kitti_infos_train.pkl
 │   │   │── kitti_info_val.pkl
@@ -83,7 +89,7 @@ detector
 Notice we have already generated the train and val info for you. So you may only put the Kitti raw data into corresponding folder.
 ### Painting
 When you have managed your data as shown below, doing the painting should be very easy. Firstly check the `painting.py` script and choose the segmentation network index that you want to use! We suggest the DeepLab V3+ and it is by default.
-To use DeepLab V3+ you need to download the weight of the model, you can run the script "get_deeplabv3plus_model.sh" under `./painting`. Then you could run the following command. 
+To use DeepLab V3+ you need to download the weight of the model, you can run the script `get_deeplabv3plus_model.sh` under `./painting`. Then you could run the following command. 
 ```
 $ cd painting
 $ python painting.py
@@ -105,6 +111,15 @@ $ python -m pcdet.datasets.kitti.painted_kitti_dataset create_kitti_infos tools/
 $ cd tools
 $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 ```
+
+### Running Inference
+With the trained weight, you can run a demo to infer the results based on the painted pointcloud. We use the demo script provided by the OpenPCDet and slightly modify the `visualize_utils.py`. To run the demo, try following the command:
+```
+$ pip install mayavi
+$ cd tools
+$ python demo.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml --ckpt ${your trained ckpt} --data_path ${painted .npy file} --ext .npy
+```
+Remember you have to specify the `--ext` parameter. You should be able to generate a demo figure shown in [Results](#3D Object Detection)
 
 ## Results & Discussions
 ### Semantic Segmentation
@@ -148,4 +163,4 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 
 ## Authors
-Chen Gao, Jingyu Song, [Youngsun Wi](https://github.com/yswi), Zeyu Wang
+Chen Gao, [Jingyu Song](https://github.com/Song-Jingyu), [Youngsun Wi](https://github.com/yswi), Zeyu Wang
