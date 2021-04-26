@@ -69,7 +69,7 @@ We also support [Hierarchical Multi-Scale Attention for Semantic Segmentation](h
 ## How to Use
 As this is a sequential detection framework, so the first thing is to prepare your kitti dataset and then paint your raw LiDAR. With the painted LiDAR, you could then train a neural network and see the enhanced result.
 ### Dataset Preparation
-Currently we only support the Kitti dataset, and we expect to update support for Nuscenes dataset in the future. For the Kitti dataset, you may need to manage your dataset as shown below. Kitti dataset can be found in [here](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d).
+Currently we only support the Kitti dataset, and we expect to update support for Nuscenes dataset in the future. For the Kitti dataset, you may need to manage your dataset as shown below. Kitti dataset can be found in [here](http://www.cvlibs.net/datasets/kitti/eval_object.php?obj_benchmark=3d). You may also need to download [planes](https://drive.google.com/file/d/1d5mq0RXRnvHPVeKx6Q612z0YRO1t2wAp/view?usp=sharing) provided by the OpenPCDet.
 ```
 detector
 ├── data
@@ -81,7 +81,7 @@ detector
 │   │   │   ├── image_3
 │   │   │   ├── label_2
 │   │   │   ├── velodyne
-│   │   │   ├── planee (you have to download [road plane](https://drive.google.com/file/d/1d5mq0RXRnvHPVeKx6Q612z0YRO1t2wAp/view?usp=sharing) provided by the OpenPCDet)
+│   │   │   ├── planes
 │   │   │   ├── painted_lidar (keep it empty)
 │   │   │── kitti_infos_train.pkl
 │   │   │── kitti_info_val.pkl
@@ -119,7 +119,7 @@ $ pip install mayavi
 $ cd tools
 $ python demo.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml --ckpt ${your trained ckpt} --data_path ${painted .npy file} --ext .npy
 ```
-Remember you have to specify the `--ext` parameter. You should be able to generate a demo figure shown in [Results](#3D Object Detection)
+Remember you have to specify the `--ext` parameter. You should be able to generate a demo figure shown in [Results](#3d-object-detection)
 
 ## Results & Discussions
 ### Semantic Segmentation
