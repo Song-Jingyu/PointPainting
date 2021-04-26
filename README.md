@@ -108,7 +108,7 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 ## Results & Discussions
 ### Semantic Segmentation
-**(top left)** Raw Camera Image, HMA, DeeplabV3+, DeepLabV3 **(bottom right)**
+**(top left)** Raw Camera Image / HMA / DeeplabV3+ / DeepLabV3 **(bottom right)**
 
 ![](figures/raw.png )
 ![](figures/hma.png)
@@ -118,7 +118,7 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 - Apparently, the baseline model with DeepLab V3 has the lowest accuracy, while HMA and DeepLab V3+ show higher precision. Even the pedestrians and cyclists that are far away from the sensor are well segmented out from the background.
 
 ### Painting
-**(left)** Pointcloud Before Painting, Pointcloud After Painting **(right)**
+**(left)** Pointcloud Before Painting / Pointcloud After Painting **(right)**
 <p align="center">
 <img src=figures/before_painting.png width=50% height=50%> 
 <img src=figures/after_painting.png width=50% height=50%>
@@ -138,18 +138,14 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
   <img src=figures/demo.png width=80% height=80%>
 </p>
 
-**Average Accuracy Across Different Object Category**
+**Average Accuracy Across Different Object Category / Accuracy for Each Object Category and Task Difficulty**
 
 <p align="center">
   <img src="figures/average_precision.png" width=40% height=40%>
-</p>
-
-
-**Accuracy for Each Object Category and Task Difficulty**
-
-<p align="center">
   <img src="figures/precision.png" width=60% height=60%>
 </p>
+
+
 
 
 ## Authors
