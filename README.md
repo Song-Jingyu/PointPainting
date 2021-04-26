@@ -108,20 +108,18 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 ## Results & Discussions
 ### Semantic Segmentation
+**(top left)** Raw Camera Image, HMA, DeeplabV3+, DeepLabV3 **(bottom right)**
 ![](figures/raw.png )
 ![](figures/hma.png)
 ![](figures/v3+.png)
 ![](figures/v3.png)
-
-**(top left)** Raw Camera Image, HMA, DeeplabV3+, DeepLabV3 **(bottom right)**
-
  The results of different semantic segmentation algorithms. Apparently, the baseline model with DeepLab V3 has the lowest accuracy, while HMA and DeepLab V3+ show higher precision. Even the pedestrians and cyclists that are far away from the sensor are well segmented out from the background.
 
 ### Painting
- <img src=figures/before_painting.png width=50% height=50%> 
- <img src=figures/after_painting.png width=50% height=50%>
-
 **(left)** Pointcloud Before Painting, Pointcloud After Painting **(right)**
+
+<img src=figures/before_painting.png width=50% height=50%> 
+<img src=figures/after_painting.png width=50% height=50%>
 
 We can see that the painting stage works effectively and the LiDAR pointcloud is correctly painted. Intuitively, the painted pointcloud makes the detection task much easier.
 
@@ -140,7 +138,7 @@ We can see that the painting stage works effectively and the LiDAR pointcloud is
 **Average Accuracy Across Different Object Category**
 
 
-<img src="figures/average_precision.png" width=50% height=50%>
+<img src="figures/average_precision.png" width=40% height=40%>
 
 
 
