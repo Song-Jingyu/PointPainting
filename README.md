@@ -138,12 +138,10 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
   <img src=figures/demo.png width=70% height=70%>
 </p>
 
-**Accuracy for each object category and task difficulty / Average accuracy across different object category **
-
+**Accuracy for each object category and task difficulty/Average accuracy across different object category**
 <p align="center">
   <img src="figures/precision1.png" width=40% height=40%>
-  <img src="figures/average_precision1.png" width=40% height=40%>
-  
+  <img src="figures/average_precision1.png" width=40% height=40%>  
 </p>
 
 
