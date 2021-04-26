@@ -148,4 +148,4 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 
 ## Authors
-Chen Gao, Jingyu Song, [Youngsun Wi](yswi), Zeyu Wang
+Chen Gao, Jingyu Song, [Youngsun Wi](https://github.com/yswi), Zeyu Wang
