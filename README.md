@@ -119,9 +119,9 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 ### Painting
 **(left)** Pointcloud Before Painting / Pointcloud After Painting **(right)**
-<p float="left">
-<img src=figures/before_painting.png width=50% height=50%> 
-<img src=figures/after_painting.png width=50% height=50%>
+<p align="center">
+<img src=figures/before_painting.png width=40% height=50%> 
+<img src=figures/after_painting.png width=40% height=50%>
 </p>
 
 - We can see that the painting stage works effectively and the LiDAR pointcloud is correctly painted. Intuitively, the painted pointcloud makes the detection task much easier.
@@ -141,8 +141,9 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 **Average Accuracy Across Different Object Category / Accuracy for Each Object Category and Task Difficulty**
 
 <p align="center">
-  <img src="figures/average_precision1.png" width=40% height=40%>
   <img src="figures/precision1.png" width=40% height=40%>
+  <img src="figures/average_precision1.png" width=40% height=40%>
+  
 </p>
 
 
