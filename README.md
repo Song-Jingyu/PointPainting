@@ -133,12 +133,12 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 - **Vehicle Detection** : We also noticed a slight decrease on easy vehicle detection task. However,this is acceptable since the even the decreased accuracy is still high enough (85%~90%) to ensure the safe  of  AVs.  For our implemenation, the improvement introduced by PointPainting is slightly (1 percent) lower than the results. We think the differenceis caused by different implementation of PointPillar.In our approach, we used OpenPCDet framework to realize PointPillar, which already improved capability of the PointPillar. 
 
 
-**3D object Detection with HMA and PointPillar**
+**3D object detection with HMA & PointPillar**
 <p align="center">
   <img src=figures/demo.png width=70% height=70%>
 </p>
 
-**Average Accuracy Across Different Object Category / Accuracy for Each Object Category and Task Difficulty**
+**Accuracy for each object category and task difficulty / Average accuracy across different object category **
 
 <p align="center">
   <img src="figures/precision1.png" width=40% height=40%>
