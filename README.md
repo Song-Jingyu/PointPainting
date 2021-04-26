@@ -119,7 +119,7 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 ### Painting
 **(left)** Pointcloud Before Painting / Pointcloud After Painting **(right)**
-<p align="center">
+<p float="left">
 <img src=figures/before_painting.png width=50% height=50%> 
 <img src=figures/after_painting.png width=50% height=50%>
 </p>
@@ -141,8 +141,8 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 **Average Accuracy Across Different Object Category / Accuracy for Each Object Category and Task Difficulty**
 
 <p align="center">
-  <img src="figures/average_precision.png" width=40% height=40%>
-  <img src="figures/precision.png" width=60% height=60%>
+  <img src="figures/average_precision1.png" width=40% height=40%>
+  <img src="figures/precision1.png" width=40% height=40%>
 </p>
 
 
