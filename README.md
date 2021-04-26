@@ -106,6 +106,51 @@ $ cd tools
 $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 ```
 
-## Results
+## Results & Discussions
+### Semantic Segmentation
+![](figures/raw.png )
+![](figures/hma.png)
+![](figures/v3+.png)
+![](figures/v3.png)
+
+**(top left)** Raw Camera Image, HMA, DeeplabV3+, DeepLabV3 **(bottom right)**
+
+ The results of different semantic segmentation algorithms. Apparently, the baseline model with DeepLab V3 has the lowest accuracy, while HMA and DeepLab V3+ show higher precision. Even the pedestrians and cyclists that are far away from the sensor are well segmented out from the background.
+
+### Painting
+ <img src=figures/before_painting.png width=50% height=50%> 
+ <img src=figures/after_painting.png width=50% height=50%>
+
+**(left)** Pointcloud Before Painting, Pointcloud After Painting **(right)**
+
+We can see that the painting stage works effectively and the LiDAR pointcloud is correctly painted. Intuitively, the painted pointcloud makes the detection task much easier.
+
+### 3D Object Detection
+
+- **Pedestran Detection** : The  PointPainting  method  tends  to  outperform LiDAR-only method much on pedestrian detection. Since the safety of the AVs is considered very important, this improvement is very valuable, especially for protecting the road users. 
+- **Cyclist Detection** : We clearly observed a gap between HMA and other semantic algorithms, which suggests the segmentation performance is very important for PointPainting. 
+- **Vehicle Detection** : We also noticed a slight decrease on easy vehicle detection task. However,this is acceptable since the even the decreased accuracy is still high enough (85%~90%) to ensure the safe  of  AVs.  For our implemenation, the improvement introduced by PointPainting is slightly (1 percent) lower than the results. We think the differenceis caused by different implementation of PointPillar.In our approach, we used OpenPCDet framework to realize PointPillar, which already improved capability of the PointPillar. 
+
+
+**3D object Detection with HMA and PointPillar**
+
+![](figures/demo.png)
+
+
+**Average Accuracy Across Different Object Category**
+
+
+<img src="figures/average_precision.png" width=50% height=50%>
+
+
+
+**Accuracy for Each Object Category and Task Difficulty**
+
+
+<img src="figures/precision.png" width=50% height=50%>
+
+
+
+
 
 ## Authors
