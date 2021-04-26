@@ -109,19 +109,22 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 ## Results & Discussions
 ### Semantic Segmentation
 **(top left)** Raw Camera Image, HMA, DeeplabV3+, DeepLabV3 **(bottom right)**
+
 ![](figures/raw.png )
 ![](figures/hma.png)
 ![](figures/v3+.png)
 ![](figures/v3.png)
- The results of different semantic segmentation algorithms. Apparently, the baseline model with DeepLab V3 has the lowest accuracy, while HMA and DeepLab V3+ show higher precision. Even the pedestrians and cyclists that are far away from the sensor are well segmented out from the background.
+
+- Apparently, the baseline model with DeepLab V3 has the lowest accuracy, while HMA and DeepLab V3+ show higher precision. Even the pedestrians and cyclists that are far away from the sensor are well segmented out from the background.
 
 ### Painting
 **(left)** Pointcloud Before Painting, Pointcloud After Painting **(right)**
-
+<p align="center">
 <img src=figures/before_painting.png width=50% height=50%> 
 <img src=figures/after_painting.png width=50% height=50%>
+</p>
 
-We can see that the painting stage works effectively and the LiDAR pointcloud is correctly painted. Intuitively, the painted pointcloud makes the detection task much easier.
+- We can see that the painting stage works effectively and the LiDAR pointcloud is correctly painted. Intuitively, the painted pointcloud makes the detection task much easier.
 
 ### 3D Object Detection
 
@@ -131,24 +134,23 @@ We can see that the painting stage works effectively and the LiDAR pointcloud is
 
 
 **3D object Detection with HMA and PointPillar**
-
-![](figures/demo.png)
-
+<p align="center">
+  <img src=figures/demo.png width=80% height=80%>
+</p>
 
 **Average Accuracy Across Different Object Category**
 
-
-<img src="figures/average_precision.png" width=40% height=40%>
-
+<p align="center">
+  <img src="figures/average_precision.png" width=40% height=40%>
+</p>
 
 
 **Accuracy for Each Object Category and Task Difficulty**
 
-
-<img src="figures/precision.png" width=50% height=50%>
-
-
-
+<p align="center">
+  <img src="figures/precision.png" width=60% height=60%>
+</p>
 
 
 ## Authors
+Chen Gao, Jingyu Song, [Youngsun Wi](yswi@umich.edu), Zeyu Wang
