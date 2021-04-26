@@ -135,7 +135,7 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 
 **3D object Detection with HMA and PointPillar**
 <p align="center">
-  <img src=figures/demo.png width=80% height=80%>
+  <img src=figures/demo.png width=70% height=70%>
 </p>
 
 **Average Accuracy Across Different Object Category / Accuracy for Each Object Category and Task Difficulty**
