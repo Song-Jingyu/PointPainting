@@ -110,7 +110,7 @@ $ python train.py --cfg_file cfgs/kitti_models/pointpillar_painted.yaml
 ### Semantic Segmentation
 **(top left)** Raw Camera Image / HMA / DeeplabV3+ / DeepLabV3 **(bottom right)**
 
-![](figures/raw.png )
+![](figures/raw.png)
 ![](figures/hma.png)
 ![](figures/v3+.png)
 ![](figures/v3.png)
