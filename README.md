@@ -4,7 +4,7 @@ This repository aims to build an open-source PointPainting package which is easy
 ## Update
 We propose to support Kitti dataset first and utilize OpenPCDet as the LiDAR detection framework. We are expected to release the code to support Kitti and at least two semantic segmentation methods to do painting by the end of April 2021.  
 Update on April 20, 2021: Code released! We currently support Kitti dataset, with DeepLab V3/V3+ and HMA!  
-Update on April 25, 2021: You can watch the presentation video at this [link](https://www.youtube.com/watch?v=qtNG_lZuafs&t=11s)
+Update on April 25, 2021: You can watch the presentation video at this [link](https://www.youtube.com/watch?v=qtNG_lZuafs&t=11s).
 
 ## Table of Contents
 - [PointPainting](#pointpainting)
@@ -163,4 +163,4 @@ Remember you have to specify the `--ext` parameter. You should be able to genera
 
 
 ## Authors
-Chen Gao, [Jingyu Song](https://github.com/Song-Jingyu), [Youngsun Wi](https://github.com/yswi), Zeyu Wang
+[Chen Gao](https://github.com/chengao982), [Jingyu Song](https://github.com/Song-Jingyu), [Youngsun Wi](https://github.com/yswi), Zeyu Wang
