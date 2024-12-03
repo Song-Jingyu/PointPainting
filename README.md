@@ -1,6 +1,10 @@
 # PointPainting
 This repository aims to build an open-source PointPainting package which is easy to understand, deploy and run! We refer to the idea in the [original paper](https://arxiv.org/abs/1911.10150) to implement this open-source framework to conduct the sequential 3D object detection. We utilize the Pytorch and mmsegmentation as the image-based segmnentation approach, and the OpenPCDet as the LiDAR detector.
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Song-Jingyu/PointPainting&type=Date)](https://star-history.com/#Song-Jingyu/PointPainting&Date)
+
 ## Update
 We propose to support Kitti dataset first and utilize OpenPCDet as the LiDAR detection framework. We are expected to release the code to support Kitti and at least two semantic segmentation methods to do painting by the end of April 2021.  
 Update on April 20, 2021: Code released! We currently support Kitti dataset, with DeepLab V3/V3+ and HMA!  
